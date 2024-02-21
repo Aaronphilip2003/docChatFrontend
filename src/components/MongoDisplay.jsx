@@ -1,15 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Grid, Modal, Box, Typography } from '@mui/material';
+
+// Modal style
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 const FilesDisplay = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [open, setOpen] = useState(false); // State to control modal visibility
+  const [selectedFile, setSelectedFile] = useState({}); // State to hold the clicked file's data
 
   useEffect(() => {
     axios.get('http://localhost:8001/api/files')
       .then(response => {
-        setFiles(response.data); // Assuming response.data is an array of objects with a title property
+        setFiles(response.data); // Assuming response.data is an array of file objects
         setLoading(false);
       })
       .catch(error => {
@@ -19,17 +35,43 @@ const FilesDisplay = () => {
       });
   }, []);
 
-  if (loading) return <div className="text-center">Loading...</div>;
-  if (error) return <div className="text-red-500 text-center">{error}</div>;
+  const handleOpen = (file) => {
+    setSelectedFile(file); // Set the clicked file as selected
+    setOpen(true); // Show the modal
+  };
+
+  const handleClose = () => setOpen(false); // Hide the modal
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <div className="max-w-4xl mx-auto mt-10">
-      <h2 className="text-2xl font-bold text-center mb-4">File Titles</h2>
-      <ul className="list-disc space-y-2 px-6">
+    <div>
+      <Grid container spacing={2}>
         {files.map((file, index) => (
-          <li key={index} className="text-lg">{file.title}</li> // Displaying file.title
+          <Grid item xs={12} sm={6} md={4} key={index} onClick={() => handleOpen(file)} style={{cursor: 'pointer'}}>
+            <Box sx={{ border: '1px solid black', padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
+              <Typography>{file.title}</Typography>
+            </Box>
+          </Grid>
         ))}
-      </ul>
+      </Grid>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="file-modal-title"
+        aria-describedby="file-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="file-modal-title" variant="h6" component="h2">
+            {selectedFile.title}
+          </Typography>
+          <Typography id="file-modal-description" sx={{ mt: 2 }}>
+            {selectedFile.text} {/* Displaying the file's content */}
+            {console.log(selectedFile)}
+          </Typography>
+        </Box>
+      </Modal>
     </div>
   );
 };
