@@ -45,17 +45,32 @@ const FilesDisplay = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
+  // Group files into chunks of three
+  const chunkedFiles = files.reduce((resultArray, item, index) => { 
+    const chunkIndex = Math.floor(index / 3);
+
+    if (!resultArray[chunkIndex]) {
+      resultArray[chunkIndex] = []; // start a new chunk
+    }
+
+    resultArray[chunkIndex].push(item);
+
+    return resultArray;
+  }, []);
+
   return (
     <div>
-      <Grid container spacing={2}>
-        {files.map((file, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index} onClick={() => handleOpen(file)} style={{cursor: 'pointer'}}>
-            <Box sx={{ border: '1px solid black', padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
-              <Typography>{file.title}</Typography>
-            </Box>
-          </Grid>
-        ))}
-      </Grid>
+      {chunkedFiles.map((chunk, chunkIndex) => (
+        <Grid key={chunkIndex} container spacing={2}>
+          {chunk.map((file, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index} onClick={() => handleOpen(file)} style={{cursor: 'pointer'}}>
+              <Box sx={{ border: '1px solid black', padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
+                <Typography>{file.title}</Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      ))}
       <Modal
         open={open}
         onClose={handleClose}
