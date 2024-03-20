@@ -23,7 +23,7 @@ const FilesDisplay = () => {
   const [selectedFile, setSelectedFile] = useState({}); // State to hold the clicked file's data
 
   useEffect(() => {
-    axios.get('http://localhost:8001/api/files')
+    axios.get('https://docchatbackend.onrender.com/api/files')
       .then(response => {
         setFiles(response.data); // Assuming response.data is an array of file objects
         setLoading(false);

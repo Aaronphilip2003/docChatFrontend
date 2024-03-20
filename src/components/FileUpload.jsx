@@ -13,7 +13,7 @@ function FileUpload({ onFilesAdded }) {
     formData.append('title', file.name); // Send file name as title
     console.log(file.name)
 
-    axios.post('http://localhost:8001/upload', formData, {
+    axios.post('https://docchatbackend.onrender.com/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

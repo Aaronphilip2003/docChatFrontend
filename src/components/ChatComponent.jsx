@@ -16,7 +16,7 @@ const ChatComponent = () => {
       console.log(message)
 
       try {
-        const response = await fetch('http://localhost:8001/performSemanticSearch', {
+        const response = await fetch('https://docchatbackend.onrender.com/performSemanticSearch', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
