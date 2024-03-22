@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Grid, Modal, Box, Typography } from '@mui/material';
+import { Modal, Box, Typography } from '@mui/material';
 
 // Modal style
-const style = {
+const modalStyle = {
   position: 'absolute',
   top: '50%',
   left: '50%',
@@ -13,6 +13,13 @@ const style = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
+};
+
+const scrollableBoxStyle = {
+  maxHeight: '300px',
+  overflowY: 'auto',
+  border: '1px solid #000',
+  padding: '10px',
 };
 
 const FilesDisplay = () => {
@@ -45,39 +52,15 @@ const FilesDisplay = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
-  // Group files into chunks of three
-  const chunkedFiles = files.reduce((resultArray, item, index) => { 
-    const chunkIndex = Math.floor(index / 3);
-
-    if (!resultArray[chunkIndex]) {
-      resultArray[chunkIndex] = []; // start a new chunk
-    }
-
-    resultArray[chunkIndex].push(item);
-
-    return resultArray;
-  }, []);
-
   return (
     <div>
-      {chunkedFiles.map((chunk, chunkIndex) => (
-        <Grid key={chunkIndex} container spacing={2}>
-          {chunk.map((file, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index} onClick={() => handleOpen(file)} style={{cursor: 'pointer'}}>
-              <Box sx={{ border: '1px solid black', padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
-                <Typography>{file.title}</Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      ))}
       <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby="file-modal-title"
         aria-describedby="file-modal-description"
       >
-        <Box sx={style}>
+        <Box sx={modalStyle}>
           <Typography id="file-modal-title" variant="h6" component="h2">
             {selectedFile.title}
           </Typography>
@@ -87,6 +70,20 @@ const FilesDisplay = () => {
           </Typography>
         </Box>
       </Modal>
+      <div>
+        <Typography variant="h5" sx={{ marginBottom: '10px', fontFamily: 'Arial, sans-serif', fontWeight: 'bold' }}>
+          Files in Database
+        </Typography>
+        <div style={scrollableBoxStyle}>
+          {files.map((file, index) => (
+            <div key={index} onClick={() => handleOpen(file)} style={{ cursor: 'pointer', marginBottom: '10px' }}>
+              <Box sx={{ border: '1px solid black', padding: 2 }}>
+                <Typography>{file.title}</Typography>
+              </Box>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
