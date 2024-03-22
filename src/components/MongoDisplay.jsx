@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Modal, Box, Typography } from '@mui/material';
+import { Modal, Typography, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Box } from '@mui/material';
 
 // Modal style
 const modalStyle = {
@@ -28,6 +28,7 @@ const FilesDisplay = () => {
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false); // State to control modal visibility
   const [selectedFile, setSelectedFile] = useState({}); // State to hold the clicked file's data
+  const [confirmationOpen, setConfirmationOpen] = useState(false); // State to control confirmation dialog visibility
 
   useEffect(() => {
     axios.get('https://docchatbackend.onrender.com/api/files')
@@ -49,6 +50,30 @@ const FilesDisplay = () => {
 
   const handleClose = () => setOpen(false); // Hide the modal
 
+  const handleDelete = (fileId) => {
+    setConfirmationOpen(true); // Open confirmation dialog
+
+    // Set selected file before deleting
+    const fileToDelete = files.find(file => file._id === fileId);
+    setSelectedFile(fileToDelete);
+  };
+
+  const confirmDelete = () => {
+    // Close confirmation dialog
+    setConfirmationOpen(false);
+
+    // Perform delete operation
+    axios.delete(`https://docchatbackend.onrender.com/api/files/${selectedFile._id}`)
+      .then(response => {
+        // Remove the deleted file from the state
+        setFiles(prevFiles => prevFiles.filter(file => file._id !== selectedFile._id));
+      })
+      .catch(error => {
+        console.error('Error deleting file:', error);
+        // Handle error deleting file
+      });
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
@@ -66,7 +91,6 @@ const FilesDisplay = () => {
           </Typography>
           <Typography id="file-modal-description" sx={{ mt: 2 }}>
             {selectedFile.text} {/* Displaying the file's content */}
-            {console.log(selectedFile)}
           </Typography>
         </Box>
       </Modal>
@@ -76,14 +100,36 @@ const FilesDisplay = () => {
         </Typography>
         <div style={scrollableBoxStyle}>
           {files.map((file, index) => (
-            <div key={index} onClick={() => handleOpen(file)} style={{ cursor: 'pointer', marginBottom: '10px' }}>
-              <Box sx={{ border: '1px solid black', padding: 2 }}>
-                <Typography>{file.title}</Typography>
-              </Box>
+            <div key={index} style={{ marginBottom: '10px', border: '1px solid black', padding: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography onClick={() => handleOpen(file)} style={{ cursor: 'pointer' }}>{file.title}</Typography>
+                <Button variant="outlined" color="error" onClick={() => handleDelete(file._id)}>Delete</Button>
+              </div>
             </div>
           ))}
         </div>
       </div>
+      <Dialog
+        open={confirmationOpen}
+        onClose={() => setConfirmationOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete "{selectedFile.title}"?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmationOpen(false)} color="primary">
+            No
+          </Button>
+          <Button onClick={confirmDelete} color="error" autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
