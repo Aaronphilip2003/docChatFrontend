@@ -32,6 +32,7 @@ const FilesDisplay = () => {
 
   useEffect(() => {
     axios.get('https://docchatbackend.onrender.com/api/files')
+    // axios.get('http://localhost:8001/api/files')
       .then(response => {
         setFiles(response.data); // Assuming response.data is an array of file objects
         setLoading(false);
@@ -51,19 +52,20 @@ const FilesDisplay = () => {
   const handleClose = () => setOpen(false); // Hide the modal
 
   const handleDelete = (fileId) => {
-    setConfirmationOpen(true); // Open confirmation dialog
-
-    // Set selected file before deleting
+    // Set selected file before opening the confirmation dialog
     const fileToDelete = files.find(file => file._id === fileId);
     setSelectedFile(fileToDelete);
+    setConfirmationOpen(true); // Open confirmation dialog
   };
+  
 
   const confirmDelete = () => {
     // Close confirmation dialog
     setConfirmationOpen(false);
+    console.log(selectedFile._id)
 
     // Perform delete operation
-    axios.delete(`https://docchatbackend.onrender.com/api/files/${selectedFile._id}`)
+    axios.delete(`http://localhost:8001/api/files/${selectedFile._id}`) // Using localhost:8001
       .then(response => {
         // Remove the deleted file from the state
         setFiles(prevFiles => prevFiles.filter(file => file._id !== selectedFile._id));
