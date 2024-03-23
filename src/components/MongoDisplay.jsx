@@ -65,7 +65,7 @@ const FilesDisplay = () => {
     console.log(selectedFile._id)
 
     // Perform delete operation
-    axios.delete(`http://localhost:8001/api/files/${selectedFile._id}`) // Using localhost:8001
+    axios.delete(`https://docchatbackend.onrender.com/api/files/${selectedFile._id}`) // Using localhost:8001
       .then(response => {
         // Remove the deleted file from the state
         setFiles(prevFiles => prevFiles.filter(file => file._id !== selectedFile._id));
